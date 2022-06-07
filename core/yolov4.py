@@ -71,6 +71,7 @@ def YOLOv3(input_layer, NUM_CLASS):
 def YOLOv4(input_layer, NUM_CLASS):
     route_1, route_2, conv = backbone.cspdarknet53(input_layer)
 
+    # 卷積神經網路
     route = conv
     conv = common.convolutional(conv, (1, 1, 512, 256))
     conv = common.upsample(conv)

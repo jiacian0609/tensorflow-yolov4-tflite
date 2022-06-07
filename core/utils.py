@@ -1,3 +1,5 @@
+# 放很多函數
+
 import cv2
 import random
 import colorsys
@@ -79,8 +81,9 @@ def read_class_names(class_file_name):
             names[ID] = name.strip('\n')
     return names
 
+# 讀參數
 def load_config(FLAGS):
-    if FLAGS.tiny:
+    if FLAGS.tiny: # yolo tiny
         STRIDES = np.array(cfg.YOLO.STRIDES_TINY)
         ANCHORS = get_anchors(cfg.YOLO.ANCHORS_TINY, FLAGS.tiny)
         XYSCALE = cfg.YOLO.XYSCALE_TINY if FLAGS.model == 'yolov4' else [1, 1]
@@ -95,6 +98,7 @@ def load_config(FLAGS):
 
     return STRIDES, ANCHORS, NUM_CLASS, XYSCALE
 
+# anchor 框框(?)
 def get_anchors(anchors_path, tiny=False):
     anchors = np.array(anchors_path)
     if tiny:

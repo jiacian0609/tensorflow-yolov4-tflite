@@ -5,6 +5,7 @@ from core.yolov4 import YOLO, decode, filter_boxes
 import core.utils as utils
 from core.config import cfg
 
+# command 可以更改的參數 & 預設值
 flags.DEFINE_string('weights', './data/yolov4.weights', 'path to weights file')
 flags.DEFINE_string('output', './checkpoints/yolov4-416', 'path to output')
 flags.DEFINE_boolean('tiny', False, 'is yolo-tiny or not')
@@ -14,12 +15,15 @@ flags.DEFINE_string('framework', 'tf', 'define what framework do you want to con
 flags.DEFINE_string('model', 'yolov4', 'yolov3 or yolov4')
 
 def save_tf():
+  # 讀參數
   STRIDES, ANCHORS, NUM_CLASS, XYSCALE = utils.load_config(FLAGS)
 
   input_layer = tf.keras.layers.Input([FLAGS.input_size, FLAGS.input_size, 3])
   feature_maps = YOLO(input_layer, NUM_CLASS, FLAGS.model, FLAGS.tiny)
   bbox_tensors = []
   prob_tensors = []
+
+  # decode 成 bounding box & 機率
   if FLAGS.tiny:
     for i, fm in enumerate(feature_maps):
       if i == 0:
@@ -40,11 +44,15 @@ def save_tf():
       prob_tensors.append(output_tensors[1])
   pred_bbox = tf.concat(bbox_tensors, axis=1)
   pred_prob = tf.concat(prob_tensors, axis=1)
+
+  # 是 tflite 的話比較簡單
   if FLAGS.framework == 'tflite':
     pred = (pred_bbox, pred_prob)
-  else:
+  else: # 尚未研究
     boxes, pred_conf = filter_boxes(pred_bbox, pred_prob, score_threshold=FLAGS.score_thres, input_shape=tf.constant([FLAGS.input_size, FLAGS.input_size]))
     pred = tf.concat([boxes, pred_conf], axis=-1)
+
+  # 放到 model 裡
   model = tf.keras.Model(input_layer, pred)
   utils.load_weights(model, FLAGS.weights, FLAGS.model, FLAGS.tiny)
   model.summary()
