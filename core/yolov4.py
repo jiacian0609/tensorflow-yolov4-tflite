@@ -289,10 +289,12 @@ def decode_trt(conv_output, output_size, NUM_CLASS, STRIDES, ANCHORS, i=0, XYSCA
     return pred_xywh, pred_prob
     # return tf.concat([pred_xywh, pred_conf, pred_prob], axis=-1)
 
-
+# 篩選 boxes
 def filter_boxes(box_xywh, scores, score_threshold=0.4, input_shape = tf.constant([416,416])):
     scores_max = tf.math.reduce_max(scores, axis=-1)
 
+    # 過濾概率值比較低的 anchor box
+    # boolean_mask(a, b) 僅保留 a 矩陣中與 b 中 "True" 同下標的部分
     mask = scores_max >= score_threshold
     class_boxes = tf.boolean_mask(box_xywh, mask)
     pred_conf = tf.boolean_mask(scores, mask)

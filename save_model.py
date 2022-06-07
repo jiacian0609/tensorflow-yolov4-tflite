@@ -45,15 +45,15 @@ def save_tf():
   pred_bbox = tf.concat(bbox_tensors, axis=1)
   pred_prob = tf.concat(prob_tensors, axis=1)
 
-  # 是 tflite 的話比較簡單
   if FLAGS.framework == 'tflite':
     pred = (pred_bbox, pred_prob)
-  else: # 尚未研究
+  else: # 篩選 boxes
     boxes, pred_conf = filter_boxes(pred_bbox, pred_prob, score_threshold=FLAGS.score_thres, input_shape=tf.constant([FLAGS.input_size, FLAGS.input_size]))
     pred = tf.concat([boxes, pred_conf], axis=-1)
 
   # 放到 model 裡
   model = tf.keras.Model(input_layer, pred)
+  # 讀下載的 yolo weights
   utils.load_weights(model, FLAGS.weights, FLAGS.model, FLAGS.tiny)
   model.summary()
   model.save(FLAGS.output)

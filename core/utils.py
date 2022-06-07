@@ -20,6 +20,7 @@ def load_freeze_layer(model='yolov4', tiny=False):
             freeze_layouts = ['conv2d_93', 'conv2d_101', 'conv2d_109']
     return freeze_layouts
 
+# 讀下載的 yolo weights
 def load_weights(model, weights_file, model_name='yolov4', is_tiny=False):
     if is_tiny:
         if model_name == 'yolov3':
@@ -49,6 +50,7 @@ def load_weights(model, weights_file, model_name='yolov4', is_tiny=False):
         in_dim = conv_layer.input_shape[-1]
 
         if i not in output_pos:
+            # darknet -> tf
             # darknet weights: [beta, gamma, mean, variance]
             bn_weights = np.fromfile(wf, dtype=np.float32, count=4 * filters)
             # tf weights: [gamma, beta, mean, variance]
@@ -58,6 +60,7 @@ def load_weights(model, weights_file, model_name='yolov4', is_tiny=False):
         else:
             conv_bias = np.fromfile(wf, dtype=np.float32, count=filters)
 
+        # darknet -> tf
         # darknet shape (out_dim, in_dim, height, width)
         conv_shape = (filters, in_dim, k_size, k_size)
         conv_weights = np.fromfile(wf, dtype=np.float32, count=np.product(conv_shape))
